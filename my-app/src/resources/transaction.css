@@ -1,0 +1,22 @@
+.filter{
+    box-shadow:0 0 3px grey;
+    padding:15px 20px;
+    border-radius:10px;
+}
+.transactionForm label{
+    color:rgba(0,0,0,0.75) !important;
+}
+.anticon svg{
+    font-size:20px;
+}
+.active-icon{
+    color:black;
+}
+.inactive-icon{
+    color:grey;
+}
+@media screen and (max-width:600px){
+    .filter{
+        overflow-x:scroll;
+    }
+}

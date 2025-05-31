@@ -1,0 +1,29 @@
+.transactions-count{
+    box-shadow : 0 0 2px grey;
+    padding:15px;
+    border-radius:10px;
+    color:rgb(56, 55, 55) !important;
+}
+
+.analytics h4{
+    font-size:25px;
+}
+.analytics h5{
+    font-size:18px;
+}
+.analytics h5::first-letter{
+    text-transform: capitalize;
+}
+.category-card{
+    padding:10px;
+    box-shadow : 0 0 2px grey;
+    padding:15px;
+    border-radius:10px;
+    color:rgb(56, 55, 55) !important;
+    margin-top:15px;
+}
+@media screen and (max-width:600px){
+    .tableAnalytics{
+        overflow-x:scroll;
+    }
+}
