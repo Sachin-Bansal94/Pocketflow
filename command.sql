@@ -1,6 +1,6 @@
 INSERT INTO users(username,email,password) VALUES('sachin','sachinbansal87619@gmail.com','welcome123');
 
-SELECT * FROM users WHERE email='karthikmohan2004@gmail.com';
+SELECT * FROM users WHERE email='sachinbansal87619@gmail.com';
 
 -- For creating the trasaction table --
 
