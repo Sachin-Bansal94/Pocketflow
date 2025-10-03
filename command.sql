@@ -1,4 +1,4 @@
-INSERT INTO users(username,email,password) VALUES('karthik','karthikmohan2004@gmail.com','welcome123');
+INSERT INTO users(username,email,password) VALUES('sachin','sachinbansal87619@gmail.com','welcome123');
 
 SELECT * FROM users WHERE email='karthikmohan2004@gmail.com';
 
