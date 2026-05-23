@@ -1,40 +1,64 @@
 import express from "express";
 import cors from "cors";
-import bodyParser from "body-parser";
+import dotenv from "dotenv";
 
 import db from "./dbConnect.js";
 
 import userRoute from "./routes/usersRoute.js";
 import transactionRoute from "./routes/transactionRoute.js";
 
+dotenv.config();
+
 const app = express();
 
-const port = 8080;
+const port = process.env.PORT || 8080;
 
-// ================= MIDDLEWARE =================
-
-app.use(cors());
+// ================= MIDDLEWARES =================
 
 app.use(express.json());
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
-// ================= TEST ROUTE =================
+// ================= CORS =================
 
-app.get("/", (req, res) => {
+// FOR DEVELOPMENT + DEPLOYMENT
 
-    res.send("PocketFlow Backend Running Successfully");
-});
+app.use(
+    cors({
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true
+    })
+);
 
 // ================= ROUTES =================
 
-app.use("/api/user", userRoute);
+app.get("/", (req, res) => {
 
-app.use("/api/transaction", transactionRoute);
+    res.send(
+        "PocketFlow Backend Running Successfully"
+    );
+});
 
-// ================= SERVER =================
+// USER ROUTES
+
+app.use(
+    "/api/user",
+    userRoute
+);
+
+// TRANSACTION ROUTES
+
+app.use(
+    "/api/transaction",
+    transactionRoute
+);
+
+// ================= START SERVER =================
 
 app.listen(port, () => {
 
-    console.log(`Server running on port ${port}`);
+    console.log(
+        `Server running on port ${port}`
+    );
 });

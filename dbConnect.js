@@ -1,18 +1,32 @@
-import pkg from "pg";
+import pg from "pg";
 
-const { Pool } = pkg;
+import dotenv from "dotenv";
 
-const db = new Pool({
+dotenv.config();
 
-    user: "postgres",
+const { Pool } = pg;
 
-    host: "localhost",
+const pool = new Pool({
 
-    database: "pocketflow",
+    connectionString:
+        process.env.DATABASE_URL,
 
-    password: "bansal@4384",
-
-    port: 5432,
+    ssl: {
+        rejectUnauthorized:false
+    }
 });
 
-export default db;
+pool.connect()
+    .then(() => {
+
+        console.log(
+            "PostgreSQL Connected"
+        );
+
+    })
+    .catch((err) => {
+
+        console.log(err);
+    });
+
+export default pool;
