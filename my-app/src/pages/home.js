@@ -106,12 +106,12 @@ function Home() {
       message.error("Failed to Fetch Transactions");
     }
   };
-
+// eslint-disable-next-line react-hooks/exhaustive-deps
 useEffect(() => {
 
     getTransactions();
 
-    // eslint-disable-next-line
+   
 
 }, [freq, rangeDate, type]);
 
