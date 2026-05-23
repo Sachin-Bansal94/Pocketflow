@@ -107,11 +107,13 @@ function Home() {
     }
   };
 
-  useEffect(() => {
+useEffect(() => {
 
     getTransactions();
 
-  }, [freq, rangeDate, type]);
+    // eslint-disable-next-line
+
+}, [freq, rangeDate, type]);
 
   // ================= DELETE =================
 
