@@ -1,72 +1,99 @@
-import react,{useState} from "react";
-import { Form, message } from "antd";
-import { Input } from "antd";
+import { Form, Input, Button, Card, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import Spinner from "../components/spinner.js"
-import "../resources/authentication.css";
+import API from "../api/axiosConfig";
+import "../styles/auth.css";
 
 function Login() {
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const[loader, setLoader] = useState(false);
+    const onFinish = async(values) => {
 
-  const getValue= async(values)=>{
-    try{
-      setLoader(true);
-      const response = await axios.post("/api/user/login",values);
-      localStorage.setItem('expenseTracker-user',JSON.stringify({useremail:response.data.email, name:response.data.username}));
-      message.success("You have logged in");
-      setLoader(false);
-      navigate('/');
-    }
-    catch(err){
-      setLoader(false);
-      message.error(err.response.data);
-    }
-    
-  }
+        try {
 
-  return (
-    <div className="register">
-      {loader && <Spinner/>}
-      <div className="row justify-content-center align-items-center w-100 h-100">
-        
-        <div className="col-md-5 ">
-          <Form layout="vertical" onFinish={getValue}>
-          <h1>LOGIN</h1>
+            const response = await API.post(
+                "/api/user/login",
+                values
+            );
 
-            <Form.Item label="Email" name="email">
-              <Input />
-            </Form.Item>
+            if(response.data.success){
 
-            <Form.Item label="Password" name="password">
-              <Input type="password" />
-            </Form.Item>
+                localStorage.setItem(
+                    "expenseTracker-user",
+                    JSON.stringify(response.data.user)
+                );
 
-            <div className="d-flex justify-content-between align-items-center">
-              <Link to="/register">Need to sign up, Click Here to Register</Link>
-              <button className="primary" type="submit">LOGIN</button>
-            </div>
-          </Form>
+                message.success("Login Successful");
+
+                navigate("/home");
+
+            } else {
+
+                message.error(response.data.message);
+            }
+
+        } catch(err){
+
+            console.log(err);
+
+            message.error("Invalid Credentials");
+        }
+    };
+
+    return (
+
+        <div className="auth-container">
+
+            <Card className="auth-card">
+
+                <h1 className="logo-text">
+                    PocketFlow
+                </h1>
+
+                <Form
+                    layout="vertical"
+                    onFinish={onFinish}
+                >
+
+                    <Form.Item
+                        label="Email"
+                        name="email"
+                        rules={[{ required:true }]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[{ required:true }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        block
+                    >
+                        Login
+                    </Button>
+
+                </Form>
+
+                <p className="auth-link">
+
+                    New User?
+                    <Link to="/register">
+                        Register
+                    </Link>
+
+                </p>
+
+            </Card>
+
         </div>
-
-        <div className="col-md-5">
-          <div className="lottie">
-            <lottie-player
-              src="https://assets3.lottiefiles.com/packages/lf20_06a6pf9i.json"
-              background="transparent"
-              speed="1"
-              loop
-              autoplay
-            ></lottie-player>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
+    );
 }
 
 export default Login;

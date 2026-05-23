@@ -1,29 +1,200 @@
 .transactions-count{
-    box-shadow : 0 0 2px grey;
-    padding:15px;
-    border-radius:10px;
-    color:rgb(56, 55, 55) !important;
+
+    background: #ffffff;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+    padding: 20px;
+
+    border-radius: 16px;
+
+    color: rgb(56,55,55);
+
+    transition: all 0.3s ease;
+
+    height: 100%;
+}
+
+.transactions-count:hover{
+
+    transform: translateY(-4px);
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+/* ================= ANALYTICS HEADINGS ================= */
+
+.analytics h3{
+
+    font-size: 24px;
+
+    font-weight: 600;
+
+    margin-bottom: 20px;
+
+    color: #1f1f1f;
 }
 
 .analytics h4{
-    font-size:25px;
+
+    font-size: 24px;
+
+    font-weight: 600;
+
+    margin-bottom: 10px;
+
+    color: #222;
 }
+
 .analytics h5{
-    font-size:18px;
+
+    font-size: 18px;
+
+    font-weight: 500;
+
+    margin-top: 10px;
+
+    color: #555;
 }
+
 .analytics h5::first-letter{
+
     text-transform: capitalize;
 }
+
+/* ================= CATEGORY CARDS ================= */
+
 .category-card{
-    padding:10px;
-    box-shadow : 0 0 2px grey;
-    padding:15px;
-    border-radius:10px;
-    color:rgb(56, 55, 55) !important;
-    margin-top:15px;
+
+    background: #ffffff;
+
+    padding: 18px;
+
+    border-radius: 14px;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+
+    margin-top: 18px;
+
+    transition: all 0.3s ease;
 }
-@media screen and (max-width:600px){
+
+.category-card:hover{
+
+    transform: scale(1.02);
+
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+
+.category-card h5{
+
+    margin-bottom: 12px;
+
+    font-size: 17px;
+
+    font-weight: 600;
+
+    color: #333;
+}
+
+/* ================= ANALYTICS CONTAINER ================= */
+
+.analytics{
+
+    padding: 10px;
+}
+
+/* ================= PROGRESS SPACING ================= */
+
+.analytics .ant-progress-circle{
+
+    margin-right: 20px;
+}
+
+/* ================= HORIZONTAL RULE ================= */
+
+.analytics hr{
+
+    border: none;
+
+    border-top: 1px solid #e5e5e5;
+
+    margin: 20px 0;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media screen and (max-width: 992px){
+
+    .analytics h3{
+
+        font-size: 22px;
+    }
+
+    .analytics h4{
+
+        font-size: 22px;
+    }
+
+    .analytics h5{
+
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 768px){
+
+    .transactions-count{
+
+        margin-bottom: 20px;
+    }
+
+    .analytics .d-flex{
+
+        flex-direction: column;
+
+        align-items: center;
+    }
+
+    .analytics .ant-progress-circle{
+
+        margin-right: 0;
+
+        margin-bottom: 15px;
+    }
+}
+
+@media screen and (max-width: 600px){
+
     .tableAnalytics{
-        overflow-x:scroll;
+
+        overflow-x: auto;
+
+        padding-bottom: 10px;
+    }
+
+    .transactions-count{
+
+        padding: 16px;
+    }
+
+    .category-card{
+
+        padding: 14px;
+    }
+
+    .analytics h3{
+
+        font-size: 20px;
+    }
+
+    .analytics h4{
+
+        font-size: 20px;
+    }
+
+    .analytics h5{
+
+        font-size: 15px;
     }
 }

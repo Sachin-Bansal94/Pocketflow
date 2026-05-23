@@ -1,22 +1,40 @@
 import express from "express";
-import axios from "axios";
-import db from './dbConnect.js'
+import cors from "cors";
 import bodyParser from "body-parser";
 
+import db from "./dbConnect.js";
+
+import userRoute from "./routes/usersRoute.js";
+import transactionRoute from "./routes/transactionRoute.js";
+
 const app = express();
+
 const port = 8080;
 
+// ================= MIDDLEWARE =================
+
+app.use(cors());
+
 app.use(express.json());
-app.use(bodyParser.urlencoded({extended:true}));
 
-import userRoute from './routes/usersRoute.js';
-app.use('/api/user/',userRoute);
+app.use(bodyParser.urlencoded({ extended: true }));
 
-import transactionRoute from './routes/transactionRoute.js';
-app.use('/api/transaction/',transactionRoute);
+// ================= TEST ROUTE =================
 
+app.get("/", (req, res) => {
 
-//checks if the server is working on the port of the server
-app.listen(port,()=>{
-	console.log(`server running on port ${port}`); 
+    res.send("PocketFlow Backend Running Successfully");
+});
+
+// ================= ROUTES =================
+
+app.use("/api/user", userRoute);
+
+app.use("/api/transaction", transactionRoute);
+
+// ================= SERVER =================
+
+app.listen(port, () => {
+
+    console.log(`Server running on port ${port}`);
 });

@@ -1,13 +1,18 @@
-import pg from "pg";
-const db = new pg.Client({
-    user:"postgres",
-	host:"localhost",
-    database:"pocketflow",
-	password:"welcome123",
-    port:5432
+import pkg from "pg";
+
+const { Pool } = pkg;
+
+const db = new Pool({
+
+    user: "postgres",
+
+    host: "localhost",
+
+    database: "pocketflow",
+
+    password: "bansal@4384",
+
+    port: 5432,
 });
-
-
-db.connect();
 
 export default db;

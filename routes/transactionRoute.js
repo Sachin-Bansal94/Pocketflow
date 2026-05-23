@@ -1,150 +1,274 @@
 import express from "express";
+
 import db from "../dbConnect.js";
-import bodyParser from "body-parser";
-import moment from "moment";
 
 const router = express.Router();
 
-router.use(bodyParser.urlencoded({ extended: true }));
+// ================= ADD TRANSACTION =================
 
-router.post("/transaction-add", async (req, res) => {
-  const amount = req.body.amount;
-  const type = req.body.type;
-  const category = req.body.category;
-  const date = req.body.date;
-  const reference = req.body.reference;
-  const description = req.body.description;
-  const userEmail = req.body.userEmail;
+router.post("/transaction-add", async(req,res)=>{
 
-  try {
-    const response = await db.query(
-      "INSERT INTO transactions VALUES($1,$2,$3,$4,$5,$6,$7)",
-      [userEmail, amount, type, date, category, reference, description]
-    );
+    try{
 
-    res.send("Successfully Inserted");
-  } catch (err) {
-    res.status(500).json("Error with the database");
-  }
+        const {
+            amount,
+            type,
+            category,
+            reference,
+            description,
+            dateexpense,
+            userEmail
+        } = req.body;
+
+        await db.query(
+            `
+            INSERT INTO transactions
+            (
+                amount,
+                type,
+                category,
+                reference,
+                description,
+                dateexpense,
+                useremail
+            )
+            VALUES($1,$2,$3,$4,$5,$6,$7)
+            `,
+            [
+                amount,
+                type,
+                category,
+                reference,
+                description,
+                dateexpense,
+                userEmail
+            ]
+        );
+
+        res.send({
+
+            success:true,
+
+            message:"Transaction Added Successfully"
+        });
+
+    } catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false,
+
+            message:err.message
+        });
+    }
 });
 
-router.post("/transaction-get", async (req, res) => {
-  const user = req.body.userEmail;
-  const freq = req.body.freq;
-  const type = req.body.type;
+// ================= GET TRANSACTIONS =================
 
-  try {
+router.post("/transaction-get", async(req,res)=>{
 
-    var result=[];
+    try{
 
-    if(freq==='custom'){
-      var startDate,finishDate;
+        const {
+            userEmail,
+            freq,
+            type,
+            range
+        } = req.body;
 
-      if(req.body.range.length == 2){
-        startDate = req.body.range[0];
-        finishDate = req.body.range[1];
-      }
-      else{
-        startDate = moment().toDate();
-        finishDate = moment().toDate();
-      }
+        // ================= BASE QUERY =================
 
-      if(type==='all'){
-        result = await db.query(
-          "SELECT transaction_id, useremail,amount,type,dateexpense,category,reference,description FROM users JOIN transactions ON email = userEmail WHERE email = $1 AND dateexpense>=$2 AND dateexpense <=$3;",
-          [user, startDate,finishDate]
+        let query = `
+            SELECT *
+            FROM transactions
+            WHERE useremail = $1
+        `;
+
+        let queryParams = [userEmail];
+
+        // ================= TYPE FILTER =================
+
+        if(type !== "all"){
+
+            query += `
+                AND type = $${queryParams.length + 1}
+            `;
+
+            queryParams.push(type);
+        }
+
+        // ================= DATE FILTER =================
+
+        // LAST X DAYS
+
+        if(freq !== "custom"){
+
+            query += `
+                AND dateexpense >=
+                CURRENT_DATE - INTERVAL '${
+                    Number(freq)
+                } days'
+            `;
+        }
+
+        // CUSTOM RANGE
+
+        else if(
+            range &&
+            range.length === 2
+        ){
+
+            query += `
+                AND dateexpense
+                BETWEEN
+                $${queryParams.length + 1}
+                AND
+                $${queryParams.length + 2}
+            `;
+
+            queryParams.push(
+                new Date(range[0])
+                    .toISOString()
+                    .split("T")[0]
+            );
+
+            queryParams.push(
+                new Date(range[1])
+                    .toISOString()
+                    .split("T")[0]
+            );
+        }
+
+        // ================= ORDER =================
+
+        query += `
+            ORDER BY dateexpense DESC
+        `;
+
+        // ================= EXECUTE =================
+
+        const transactions = await db.query(
+            query,
+            queryParams
         );
-      }
-      else{
-        result = await db.query(
-          "SELECT transaction_id, useremail,amount,type,dateexpense,category,reference,description FROM users JOIN transactions ON email = userEmail WHERE email = $1 AND dateexpense>=$2 AND dateexpense <=$3 AND type =$4;",
-          [user ,startDate ,finishDate,type]
-        );
-      }
 
-      
+        res.send({
+
+            success:true,
+
+            transactions:
+                transactions.rows
+        });
+
+    } catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false,
+
+            message:err.message
+        });
     }
-
-    else{
-      const date = moment().subtract(Number(freq), "d").toDate();
-
-      if(type==='all'){
-        result = await db.query(
-          "SELECT transaction_id, useremail,amount,type,dateexpense,category,reference,description FROM users JOIN transactions ON email = userEmail WHERE email = $1 AND dateexpense >=$2;",
-          [user, date]
-        );
-      }
-      else{
-        result = await db.query(
-          "SELECT transaction_id, useremail,amount,type,dateexpense,category,reference,description FROM users JOIN transactions ON email = userEmail WHERE email = $1 AND dateexpense >=$2 AND type=$3;",
-          [user, date, type]
-        );
-      }
-      
-    }
-
-    res.status(200).json(result.rows);
-  } catch (err) {
-    res.status(500).json(err.message);
-  }
 });
 
-router.post("/transaction-edit",async (req,res)=>{
-  const amount = req.body.amount;
-  const type = req.body.type;
-  const category = req.body.category;
-  const date = req.body.date;
-  const reference = req.body.reference;
-  const description = req.body.description;
-  const userEmail = req.body.userEmail;
+// ================= EDIT TRANSACTION =================
 
-  const transaction_id = req.body.transaction_id;
-  const dateexpense = req.body.date;
+router.post("/transaction-edit", async(req,res)=>{
 
-  try{
-    await db.query("UPDATE transactions SET amount = $1,type = $2,dateexpense = $3, category=$4, reference=$5, description=$6 WHERE transaction_id = $7",[amount,type,dateexpense,category,reference,description,transaction_id]);
-    res.send("Successfully Updated");
-  }
-  catch(err){
-    res.status(500).json(err.message);
-  }
+    try{
 
-})
+        const {
+            transaction_id,
+            amount,
+            type,
+            category,
+            reference,
+            description,
+            dateexpense,
+            userEmail
+        } = req.body;
 
-router.post("/transaction-edit",async (req,res)=>{
+        await db.query(
+            `
+            UPDATE transactions
+            SET
+                amount=$1,
+                type=$2,
+                category=$3,
+                reference=$4,
+                description=$5,
+                dateexpense=$6,
+                useremail=$7
+            WHERE transaction_id=$8
+            `,
+            [
+                amount,
+                type,
+                category,
+                reference,
+                description,
+                dateexpense,
+                userEmail,
+                transaction_id
+            ]
+        );
 
-  const amount = req.body.amount;
-  const type = req.body.type;
-  const category = req.body.category;
-  const date = req.body.date;
-  const reference = req.body.reference;
-  const description = req.body.description;
-  const userEmail = req.body.userEmail;
+        res.send({
 
-  const transaction_id = req.body.transaction_id;
-  const dateexpense = req.body.date;
+            success:true,
 
-  try{
-    await db.query("UPDATE transactions SET amount = $1,type = $2,dateexpense = $3, category=$4, reference=$5, description=$6 WHERE transaction_id = $7",[amount,type,dateexpense,category,reference,description,transaction_id]);
-    res.send("Successfully Updated");
-  }
-  catch(err){
-    res.status(500).json(err.message);
-  }
+            message:"Transaction Updated"
+        });
 
-})
+    } catch(err){
 
-router.post("/transaction-del",async(req,res)=>{
-  const transaction_id = req.body.tId;
+        console.log(err);
 
-  try{
-    await db.query("DELETE FROM transactions WHERE transaction_id = $1",[transaction_id]);
-    res.send("Successfully Updated");
-  }
-  catch(err){
-    res.status(500).json(err.message);
-  }
+        res.send({
 
-})
+            success:false,
+
+            message:err.message
+        });
+    }
+});
+
+// ================= DELETE TRANSACTION =================
+
+router.post("/transaction-del", async(req,res)=>{
+
+    try{
+
+        await db.query(
+            `
+            DELETE FROM transactions
+            WHERE transaction_id=$1
+            `,
+            [req.body.tId]
+        );
+
+        res.send({
+
+            success:true,
+
+            message:"Deleted Successfully"
+        });
+
+    } catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false,
+
+            message:err.message
+        });
+    }
+});
 
 export default router;

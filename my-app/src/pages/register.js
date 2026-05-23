@@ -1,79 +1,103 @@
-import react,{useState} from "react";
-import { Form, Input, message } from "antd";
-import axios from "axios";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import "../resources/authentication.css";
-import Spinner from "../components/spinner.js"
+import { Form, Input, Button, Card, message } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import API from "../api/axiosConfig";
+import "../styles/auth.css";
 
-function Register() {
-  const navigate = useNavigate();
+function Register(){
 
-  const [loader,setLoader] = useState(false);
+    const navigate = useNavigate();
 
-  const getValue= async(values)=>{
+    const onFinish = async(values) => {
 
-    try{
-      setLoader(true);
-      const response = await axios.post("/api/user/register",values);
+        try{
 
-      console.log(response);
+            const response = await API.post(
+                "/api/user/register",
+                values
+            );
 
+            if(response.data.success){
 
-      localStorage.setItem('expenseTracker-user',JSON.stringify({useremail:response.data.email, name:response.data.username}));
-      message.success("User Registerd Successfully");
-      setLoader(false);
-      navigate('/');
-    }
-    catch(err){
-      setLoader(false);
-      // console.log("There has been an error when sending the data");
-      // console.log(err);
-      message.error(err.response.data);
-    }
-    
-  }
+                message.success("Registration Successful");
 
-  return (
-    <div className="register">
-      {loader && <Spinner/>}
-      <div className="row justify-content-center align-items-center w-100 h-100">
-        <div className="col-md-5">
-          <div className="lottie">
-            <lottie-player
-              src="https://assets3.lottiefiles.com/packages/lf20_06a6pf9i.json"
-              background="transparent"
-              speed="1"
-              loop
-              autoplay
-            ></lottie-player>
-          </div>
-          
+                navigate("/");
+
+            } else {
+
+                message.error(response.data.message);
+            }
+
+        }
+        catch(err){
+
+            console.log(err);
+
+            message.error("Registration Failed");
+        }
+    };
+
+    return(
+
+        <div className="auth-container">
+
+            <Card className="auth-card">
+
+                <h1 className="logo-text">
+                    PocketFlow
+                </h1>
+
+                <Form
+                    layout="vertical"
+                    onFinish={onFinish}
+                >
+
+                    <Form.Item
+                        label="Name"
+                        name="name"
+                        rules={[{required:true}]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Email"
+                        name="email"
+                        rules={[{required:true}]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[{required:true}]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        block
+                    >
+                        Register
+                    </Button>
+
+                </Form>
+
+                <p className="auth-link">
+
+                    Already Registered?
+                    <Link to="/">
+                        Login
+                    </Link>
+
+                </p>
+
+            </Card>
+
         </div>
-        <div className="col-md-5 ">
-          <Form layout="vertical" onFinish={getValue}>
-          <h1>Register</h1>
-          <hr></hr>
-            <Form.Item label="Name" name="name">
-              <Input />
-            </Form.Item>
-
-            <Form.Item label="Email" name="email">
-              <Input />
-            </Form.Item>
-
-            <Form.Item label="Password" name="password">
-              <Input type="password" />
-            </Form.Item>
-
-            <div className="d-flex justify-content-between align-items-center">
-              <Link to="/login">Already Registered , Click Here to Login</Link>
-              <button className="primary" type="submit">REGISTER</button>
-            </div>
-          </Form>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default Register;
